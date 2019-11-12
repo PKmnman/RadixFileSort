@@ -12,6 +12,7 @@ public class Main {
     public static final URL FILE = Main.class.getResource("/files/file.dat");
     public static final URL ONE = Main.class.getResource("/files/one.dat");
     public static final URL ZERO = Main.class.getResource("/files/zero.dat");
+
     private static final int AMT_OF_NUMBERS = 10;
 
     public static void main(String[] args) throws IOException {
@@ -37,7 +38,7 @@ public class Main {
         createFile(file);
         printFile(file);
         sortFile(file, zero, one);
-
+        printFile(file);
 
         file.close();
         one.close();
@@ -46,7 +47,7 @@ public class Main {
     }
 
     //Reads and prints file to console
-    public static void printFile(RandomAccessFile file) throws IOException {
+    private static void printFile(RandomAccessFile file) throws IOException {
         file.seek(0);
         for (int i = 0; i < AMT_OF_NUMBERS; i++) {
             int unsignedInt = file.readInt();
@@ -65,15 +66,38 @@ public class Main {
         file.seek(0);
     }
 
+    //converts int to int[] binary
+    private static int[] convertToBinary(int number) {
+        int[] binaryNum = new int[32];
+        String str = Integer.toBinaryString(number);
+        if (str.length() != 32) {
+            int diff = 32 - str.length();
+            String temp = "";
+            for (int i = 0; i < diff; i++) {
+                temp += "0";
+            }
+            temp += str;
+            str = temp;
+        }
+
+        for (int i = 0; i < 32; i++) {
+            binaryNum[i] = Integer.parseInt(str.charAt(i) + "");
+        }
+
+        return binaryNum;
+
+    }
+
     //Sorts file using radix sort
     private static void sortFile(RandomAccessFile file, RandomAccessFile zero, RandomAccessFile one) throws IOException {
-        int mask = 0x00000001;
-        for (int i = 0; i < 32; i++) {  //bit selector
+        file.seek(0);
+        for (int i = 31; i >= 0; i--) {  //bit selector
             int z = 0;  //amount of numbers in zero file
             int o = 0;  //amount of numbers in one file
             for (int j = 0; j < AMT_OF_NUMBERS; j++) {  //number selector
                 int m = file.readInt();  //reads the selected bit of the number
-                if ((m == 0) && ((mask << i) == 0)) {
+                int[] mArr = convertToBinary(m);
+                if (mArr[i] == 0) {
                     zero.writeInt(m);  //bit was zero so the number goes to the zero file
                     z++;  //number added to the zero file
                 } else {
@@ -82,23 +106,18 @@ public class Main {
                 }
             }
             one.seek(0);
-            zero.seek(z);
             for (int k = 0; k < o; k++) {  //appends one to zero
                 zero.writeInt(one.readInt());
             }
-            swapFiles(file, zero);  //swaps file and zero
+
+            RandomAccessFile temp = zero;  //swaps file and zero
+            zero = file;
+            file = temp;
+
             one.seek(0);
             zero.seek(0);
             file.seek(0);
         }
-    }
-
-    //swaps file and zero
-    private static void swapFiles(RandomAccessFile file, RandomAccessFile zero) throws IOException {
-        RandomAccessFile temp = zero;
-        zero = file;
-        file = temp;
-
     }
 
 
