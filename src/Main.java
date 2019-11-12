@@ -1,8 +1,10 @@
+import javax.print.DocFlavor;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class Main {
@@ -33,19 +35,32 @@ public class Main {
         RandomAccessFile zero = new RandomAccessFile(fileZero, "rw");
 
         createFile(file);
+        printFile(file);
         sortFile(file, zero, one);
+
 
         file.close();
         one.close();
         zero.close();
+
+    }
+
+    //Reads and prints file to console
+    public static void printFile(RandomAccessFile file) throws IOException {
+        file.seek(0);
+        for (int i = 0; i < AMT_OF_NUMBERS; i++) {
+            int unsignedInt = file.readInt();
+            System.out.println(unsignedInt);
+        }
+        System.out.println();
     }
 
     //creates and writes 10 random unsigned binary ints to file
     private static void createFile(RandomAccessFile file) throws IOException {
-        file.seek(0);
         Random random = new Random();
         for (int i = 0; i < AMT_OF_NUMBERS; i++) {
-            file.writeInt(random.nextInt(0x7fffffff));
+            int unsignedInt = random.nextInt(0x7fffffff);
+            file.writeInt(unsignedInt);
         }
         file.seek(0);
     }
