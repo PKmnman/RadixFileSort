@@ -36,8 +36,12 @@ public class Main {
         RandomAccessFile zero = new RandomAccessFile(fileZero, "rw");
 
         createFile(file);
+
+        System.out.println("Unsorted:");
         printFile(file);
         sortFile(file, zero, one);
+
+        System.out.println("Sorted:");
         printFile(file);
 
         file.close();
@@ -51,7 +55,7 @@ public class Main {
         file.seek(0);
         for (int i = 0; i < AMT_OF_NUMBERS; i++) {
             int unsignedInt = file.readInt();
-            System.out.println(unsignedInt);
+            System.out.printf("%12d%n",unsignedInt);
         }
         System.out.println();
     }
